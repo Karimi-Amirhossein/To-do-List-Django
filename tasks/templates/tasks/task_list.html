@@ -1,0 +1,30 @@
+{% extends 'tasks/base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center">
+    <div>
+        <h4>Hello, {{ request.user|title }}</h4>
+        <h6 class="text-muted">You have <i>{{ count }}</i> incomplete task{{ count|pluralize:"s" }}</h6>
+    </div>
+    
+
+<a href="{% url 'task-create' %}" class="btn btn-primary mb-3">Add New Task</a>
+
+{% for task in tasks %}
+    <div class="list-group-item d-flex justify-content-between align-items-center gap-3">
+        
+        <div class="flex-grow-1">
+            {% if task.completed %}
+                <strike><a href="{% url 'task-update' task.id %}" class="text-decoration-none text-muted">{{ task.title }}</a></strike>
+            {% else %}
+                <a href="{% url 'task-update' task.id %}" class="text-decoration-none text-dark">{{ task.title }}</a>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'task-delete' task.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+    </div>
+{% empty %}
+    <p class="p-3">You have no tasks.</p>
+{% endfor %}
+
+{% endblock content %}
