@@ -1,5 +1,4 @@
-from .forms import TaskForm
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse_lazy
@@ -10,6 +9,16 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 
 from .models import Task
+from .forms import TaskForm
+
+
+class CustomLoginView(LoginView):
+    template_name = 'tasks/login.html'
+    fields = '__all__'
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return reverse_lazy('task-list')
 
 
 class RegisterPage(FormView):
@@ -44,7 +53,7 @@ class TaskList(LoginRequiredMixin, ListView):
 
 class TaskCreate(LoginRequiredMixin, CreateView):
     model = Task
-    form_class = TaskForm # Changed to this line
+    form_class = TaskForm
     success_url = reverse_lazy('task-list')
     template_name = 'tasks/task_form.html'
 
