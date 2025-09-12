@@ -44,9 +44,13 @@ class TaskList(LoginRequiredMixin, ListView):
     context_object_name = 'tasks'
     template_name = 'tasks/task_list.html'
 
+    def get_queryset(self):
+        # Best Practice: Filter tasks for the logged-in user here.
+        return Task.objects.filter(user=self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['tasks'] = context['tasks'].filter(user=self.request.user)
+        # The queryset is already filtered, we just add the count.
         context['count'] = context['tasks'].filter(completed=False).count()
         return context
 
@@ -68,9 +72,19 @@ class TaskUpdate(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('task-list')
     template_name = 'tasks/task_form.html'
 
+    def get_queryset(self):
+        # SECURITY FIX: Ensures users can only update their own tasks.
+        base_qs = super().get_queryset()
+        return base_qs.filter(user=self.request.user)
+
 
 class TaskDelete(LoginRequiredMixin, DeleteView):
     model = Task
     context_object_name = 'task'
     success_url = reverse_lazy('task-list')
     template_name = 'tasks/task_confirm_delete.html'
+
+    def get_queryset(self):
+        # SECURITY FIX: Ensures users can only delete their own tasks.
+        base_qs = super().get_queryset()
+        return base_qs.filter(user=self.request.user)
